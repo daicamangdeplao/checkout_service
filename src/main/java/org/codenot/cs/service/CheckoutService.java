@@ -16,9 +16,23 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CheckoutService {
 
+    private final DiscountService discountService;
+
+    public CheckoutService(DiscountService discountService) {
+        this.discountService = discountService;
+    }
+
     public void checkout(Basket basket) {
-        Order order = createOrder(basket);
+        Order originalOrder = createOrder(basket);
+        Order discountOrder = applyDiscount(originalOrder);
         log.info("Checkout started");
+    }
+
+    private Order applyDiscount(Order originalOrder) {
+        List<OrderedItem> discountedOrderedItems = originalOrder.orderedItems().stream()
+                .map(discountService::apply)
+                .toList();
+        return Order.builder().orderedItems(discountedOrderedItems).build();
     }
 
     private Order createOrder(Basket basket) {
