@@ -17,15 +17,19 @@ import java.util.stream.Collectors;
 public class CheckoutService {
 
     private final DiscountService discountService;
+    private final PaymentService paymentService;
 
-    public CheckoutService(DiscountService discountService) {
+    public CheckoutService(DiscountService discountService, PaymentService paymentService) {
         this.discountService = discountService;
+        this.paymentService = paymentService;
     }
 
     public void checkout(Basket basket) {
+        log.info("Checkout basket");
         Order originalOrder = createOrder(basket);
         Order discountOrder = applyDiscount(originalOrder);
-        log.info("Checkout started");
+        paymentService.doPayment(discountOrder);
+        log.info("Finish checkout basket");
     }
 
     private Order applyDiscount(Order originalOrder) {
@@ -61,5 +65,4 @@ public class CheckoutService {
             Integer quantity
     ) {
     }
-
 }
