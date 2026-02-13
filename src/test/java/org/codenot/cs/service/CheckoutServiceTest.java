@@ -60,6 +60,16 @@ class CheckoutServiceTest {
         BDDMockito.verify(paymentService).doPayment(discountedOrder);
     }
 
+    @Test
+    void checkoutShouldNotInvokePaymentServiceWhenOrderedItemsIsEmpty() {
+        BDDMockito.given(discountService.apply(BDDMockito.any())).willReturn(Optional.empty());
+
+        checkoutService.checkout(basket);
+
+        BDDMockito.verify(discountService, BDDMockito.times(1)).apply(BDDMockito.any());
+        BDDMockito.verify(paymentService, BDDMockito.times(0)).doPayment(discountedOrder);
+    }
+
     private Basket createBasket(String... itemNames) {
         List<Item> items = Arrays.stream(itemNames)
                 .map(name -> Item.builder()
