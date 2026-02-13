@@ -4,6 +4,7 @@ import org.codenot.cs.entity.Basket;
 import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
@@ -14,9 +15,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @ExtendWith(MockitoExtension.class)
 class CheckoutServiceTest {
+
+    private static final int ANY_INT_VALUE = ThreadLocalRandom.current().nextInt();
+    private static final BigDecimal ANY_BIG_DECIMAL = new BigDecimal(ANY_INT_VALUE);
+    private static final String ANY_STRING_VALUE = "Any String";
 
     @Mock
     private PaymentService paymentService;
@@ -27,18 +34,26 @@ class CheckoutServiceTest {
     @InjectMocks
     private CheckoutService checkoutService;
 
-    @Test
-    void checkoutShouldProcessCorrectOrder() {
-        Basket basket = createBasket("apple");
-        OrderedItem discountedOrderedItem = OrderedItem.builder()
-                .name("apple")
-                .orderedPrice(BigDecimal.valueOf(1.1))
-                .quantity(1)
+    private Basket basket;
+    private OrderedItem discountedOrderedItem;
+    private Order discountedOrder;
+
+    @BeforeEach
+    void setUp() {
+        basket = createBasket(ANY_STRING_VALUE);
+        discountedOrderedItem = OrderedItem.builder()
+                .name(ANY_STRING_VALUE)
+                .orderedPrice(ANY_BIG_DECIMAL)
+                .quantity(ANY_INT_VALUE)
                 .build();
-        Order discountedOrder = Order.builder()
+        discountedOrder = Order.builder()
                 .orderedItems(List.of(discountedOrderedItem))
                 .build();
-        BDDMockito.given(discountService.apply(BDDMockito.any())).willReturn(discountedOrderedItem);
+    }
+
+    @Test
+    void checkoutShouldProcessCorrectOrder() {
+        BDDMockito.given(discountService.apply(BDDMockito.any())).willReturn(Optional.of(discountedOrderedItem));
 
         checkoutService.checkout(basket);
 
@@ -49,7 +64,7 @@ class CheckoutServiceTest {
         List<Item> items = Arrays.stream(itemNames)
                 .map(name -> Item.builder()
                         .name(name)
-                        .basePrice(BigDecimal.valueOf(1.1))
+                        .basePrice(ANY_BIG_DECIMAL)
                         .build())
                 .toList();
 
@@ -57,4 +72,7 @@ class CheckoutServiceTest {
                 .item(items)
                 .build();
     }
+
+    // The price should correct
+    // The quantity should correct
 }

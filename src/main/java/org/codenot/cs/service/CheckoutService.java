@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,8 +27,14 @@ public class CheckoutService {
 
     public void checkout(Basket basket) {
         log.info("Checkout basket");
-        Order originalOrder = createOrder(basket);
-        Order discountOrder = applyDiscount(originalOrder);
+        Optional<Order> originalOrder = createOrder(basket);
+
+        if (originalOrder.isEmpty()) {
+            log.info("Order is empty, checkout is cancelled");
+            return;
+        }
+
+        Order discountOrder = applyDiscount(originalOrder.get());
         paymentService.doPayment(discountOrder);
         log.info("Finish checkout basket");
     }
@@ -35,17 +42,24 @@ public class CheckoutService {
     private Order applyDiscount(Order originalOrder) {
         List<OrderedItem> discountedOrderedItems = originalOrder.orderedItems().stream()
                 .map(discountService::apply)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .toList();
+
         return Order.builder().orderedItems(discountedOrderedItems).build();
     }
 
-    private Order createOrder(Basket basket) {
+    private Optional<Order> createOrder(Basket basket) {
         Map<String, PriceAndQuant> order = basket.item().stream()
                 .collect(Collectors.toMap(
                         Item::name,
                         item -> new PriceAndQuant(item.basePrice(), 1),
-                        (u1, u2) -> new PriceAndQuant(u1.price.add(u2.price()), Math.max(u1.quantity(), u2.quantity()) + 1)
+                        (pq1, pg2) -> new PriceAndQuant(pq1.price.add(pg2.price()), Math.max(pq1.quantity(), pg2.quantity()) + 1)
                 ));
+
+        if (order.isEmpty()) {
+            return Optional.empty();
+        }
 
         List<OrderedItem> orderedItems = order.entrySet().stream()
                 .map(entry -> OrderedItem.builder()
@@ -55,9 +69,13 @@ public class CheckoutService {
                         .build())
                 .toList();
 
-        return Order.builder()
+        if (orderedItems.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(Order.builder()
                 .orderedItems(orderedItems)
-                .build();
+                .build());
     }
 
     record PriceAndQuant(
