@@ -4,6 +4,9 @@ import org.codenot.cs.entity.Basket;
 import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
+import org.codenot.cs.service.checkout.CheckoutService;
+import org.codenot.cs.service.discount.DefaultDiscountService;
+import org.codenot.cs.service.payment.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,7 +32,7 @@ class CheckoutServiceTest {
     private PaymentService paymentService;
 
     @Mock
-    private DiscountService discountService;
+    private DefaultDiscountService defaultDiscountService;
 
     @InjectMocks
     private CheckoutService checkoutService;
@@ -53,7 +56,7 @@ class CheckoutServiceTest {
 
     @Test
     void checkoutShouldProcessCorrectOrder() {
-        BDDMockito.given(discountService.apply(BDDMockito.any())).willReturn(Optional.of(discountedOrderedItem));
+        BDDMockito.given(defaultDiscountService.apply(BDDMockito.any())).willReturn(Optional.of(discountedOrderedItem));
 
         checkoutService.checkout(basket);
 
@@ -62,11 +65,11 @@ class CheckoutServiceTest {
 
     @Test
     void checkoutShouldNotInvokePaymentServiceWhenOrderedItemsIsEmpty() {
-        BDDMockito.given(discountService.apply(BDDMockito.any())).willReturn(Optional.empty());
+        BDDMockito.given(defaultDiscountService.apply(BDDMockito.any())).willReturn(Optional.empty());
 
         checkoutService.checkout(basket);
 
-        BDDMockito.verify(discountService, BDDMockito.times(1)).apply(BDDMockito.any());
+        BDDMockito.verify(defaultDiscountService, BDDMockito.times(1)).apply(BDDMockito.any());
         BDDMockito.verify(paymentService, BDDMockito.times(0)).doPayment(discountedOrder);
     }
 
@@ -82,7 +85,4 @@ class CheckoutServiceTest {
                 .item(items)
                 .build();
     }
-
-    // The price should correct
-    // The quantity should correct
 }

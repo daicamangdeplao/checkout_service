@@ -1,4 +1,4 @@
-package org.codenot.cs.service;
+package org.codenot.cs.service.discount;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.cs.entity.OrderedItem;
@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @Slf4j
-public class DiscountService {
+public class DefaultDiscountService {
 
     private final List<DiscountConfiguration> discountConfigurations = List.of(
             new DiscountConfiguration(2, 10.0),

@@ -4,7 +4,7 @@ import org.codenot.cs.entity.Basket;
 import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
-import org.codenot.cs.service.CheckoutService;
+import org.codenot.cs.service.checkout.CheckoutService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

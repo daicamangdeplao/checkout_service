@@ -1,10 +1,12 @@
-package org.codenot.cs.service;
+package org.codenot.cs.service.checkout;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.cs.entity.Basket;
 import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
+import org.codenot.cs.service.payment.PaymentService;
+import org.codenot.cs.service.discount.DefaultDiscountService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,11 +19,11 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CheckoutService {
 
-    private final DiscountService discountService;
+    private final DefaultDiscountService defaultDiscountService;
     private final PaymentService paymentService;
 
-    public CheckoutService(DiscountService discountService, PaymentService paymentService) {
-        this.discountService = discountService;
+    public CheckoutService(DefaultDiscountService defaultDiscountService, PaymentService paymentService) {
+        this.defaultDiscountService = defaultDiscountService;
         this.paymentService = paymentService;
     }
 
@@ -41,7 +43,7 @@ public class CheckoutService {
 
     private Order applyDiscount(Order originalOrder) {
         List<OrderedItem> discountedOrderedItems = originalOrder.orderedItems().stream()
-                .map(discountService::apply)
+                .map(defaultDiscountService::apply)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
