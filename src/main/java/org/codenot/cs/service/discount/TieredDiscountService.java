@@ -3,8 +3,8 @@ package org.codenot.cs.service.discount;
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.cs.entity.OrderedItem;
 import org.codenot.cs.repository.TieredDiscountConfigRepository;
-import org.codenot.cs.service.discount.domain.PriceTier;
-import org.codenot.cs.service.discount.domain.TieredDiscountConfig;
+import org.codenot.cs.entity.PriceTier;
+import org.codenot.cs.entity.TieredDiscountConfig;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

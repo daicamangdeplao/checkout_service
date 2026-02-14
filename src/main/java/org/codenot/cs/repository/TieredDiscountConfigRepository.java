@@ -1,7 +1,7 @@
 package org.codenot.cs.repository;
 
-import org.codenot.cs.service.discount.domain.PriceTier;
-import org.codenot.cs.service.discount.domain.TieredDiscountConfig;
+import org.codenot.cs.entity.PriceTier;
+import org.codenot.cs.entity.TieredDiscountConfig;
 
 import java.math.BigDecimal;
 import java.util.List;

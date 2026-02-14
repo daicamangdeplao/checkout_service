@@ -1,6 +1,7 @@
-package org.codenot.cs.service.discount.domain;
+package org.codenot.cs.entity;
 
 import lombok.Builder;
+import org.codenot.cs.service.discount.domain.PricingStrategy;
 
 import java.math.BigDecimal;
 
