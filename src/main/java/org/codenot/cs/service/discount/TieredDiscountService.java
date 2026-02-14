@@ -29,7 +29,9 @@ public class TieredDiscountService implements DiscountService {
 
     @Override
     public Optional<OrderedItem> apply(OrderedItem item) {
-        Optional<TieredDiscountConfig> discountConfig = tieredDiscountConfigRepository.findByItemName(item.name());
+        Optional<TieredDiscountConfig> discountConfig = Optional.ofNullable(item)
+                .map(OrderedItem::name)
+                .flatMap(tieredDiscountConfigRepository::findByItemName);
 
         if (discountConfig.isEmpty()) {
             return Optional.empty();
@@ -49,15 +51,14 @@ public class TieredDiscountService implements DiscountService {
             case FIXED_PER_ITEM -> Optional.of(OrderedItem.builder()
                     .name(item.name())
                     .quantity(item.quantity())
-                    .orderedPrice(item.orderedPrice().multiply(appliedTier.value()))
+                    .orderedPrice(item.orderedPrice().multiply(appliedTier.value()).setScale(2, RoundingMode.HALF_UP))
                     .build());
             case FIXED_TOTAL -> {
-                BigDecimal pricePerItem = appliedTier.value().divide(BigDecimal.valueOf(item.quantity()), 2, RoundingMode.HALF_UP);
-                BigDecimal discountedPrice = pricePerItem.multiply(BigDecimal.valueOf(item.quantity()));
+                BigDecimal orderedPrice = appliedTier.value().setScale(2, RoundingMode.HALF_UP);
                 yield Optional.of(OrderedItem.builder()
                         .name(item.name())
                         .quantity(item.quantity())
-                        .orderedPrice(discountedPrice)
+                        .orderedPrice(orderedPrice)
                         .build());
             }
             case PERCENTAGE_OFF -> {

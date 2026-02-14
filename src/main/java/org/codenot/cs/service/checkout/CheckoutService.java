@@ -43,15 +43,15 @@ public class CheckoutService {
     }
 
     private Order applyDiscount(Order originalOrder, DiscountStrategy discountStrategy) {
-        Optional<DiscountService> first = discountServices.stream()
+        Optional<DiscountService> supportedDiscountService = discountServices.stream()
                 .filter(service -> service.supports(discountStrategy))
                 .findFirst();
 
-        if (first.isEmpty()) {
+        if (supportedDiscountService.isEmpty()) {
             return originalOrder;
         }
 
-        DiscountService discountService = first.get();
+        DiscountService discountService = supportedDiscountService.get();
         List<OrderedItem> discountedOrderedItems = originalOrder.orderedItems().stream()
                 .map(discountService::apply)
                 .filter(Optional::isPresent)
