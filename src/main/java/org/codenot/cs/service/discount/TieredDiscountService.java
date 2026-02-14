@@ -51,22 +51,22 @@ public class TieredDiscountService implements DiscountService {
                     .orderedPrice(item.orderedPrice().multiply(appliedTier.value()))
                     .build());
             case FIXED_TOTAL -> {
-                BigDecimal divide = appliedTier.value().divide(BigDecimal.valueOf(item.quantity()), 2, RoundingMode.HALF_UP);
-                BigDecimal multiply = divide.multiply(BigDecimal.valueOf(item.quantity()));
+                BigDecimal pricePerItem = appliedTier.value().divide(BigDecimal.valueOf(item.quantity()), 2, RoundingMode.HALF_UP);
+                BigDecimal discountedPrice = pricePerItem.multiply(BigDecimal.valueOf(item.quantity()));
                 yield Optional.of(OrderedItem.builder()
                         .name(item.name())
                         .quantity(item.quantity())
-                        .orderedPrice(multiply)
+                        .orderedPrice(discountedPrice)
                         .build());
             }
             case PERCENTAGE_OFF -> {
-                BigDecimal divide = appliedTier.value().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
-                BigDecimal multiply = item.orderedPrice().multiply(divide);
-                BigDecimal subtract = item.orderedPrice().subtract(multiply);
+                BigDecimal percentage = appliedTier.value().divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+                BigDecimal saveOffValue = item.orderedPrice().multiply(percentage);
+                BigDecimal discountedPrice = item.orderedPrice().subtract(saveOffValue);
                 yield Optional.of(OrderedItem.builder()
                         .name(item.name())
                         .quantity(item.quantity())
-                        .orderedPrice(subtract.setScale(2, RoundingMode.HALF_UP))
+                        .orderedPrice(discountedPrice.setScale(2, RoundingMode.HALF_UP))
                         .build());
             }
         };
