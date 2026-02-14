@@ -58,7 +58,7 @@ class CheckoutServiceTest {
     void checkoutShouldProcessCorrectOrder() {
         BDDMockito.given(defaultDiscountService.apply(BDDMockito.any())).willReturn(Optional.of(discountedOrderedItem));
 
-        checkoutService.checkout(basket);
+        checkoutService.checkout(basket, "default");
 
         BDDMockito.verify(paymentService).doPayment(discountedOrder);
     }
@@ -67,7 +67,7 @@ class CheckoutServiceTest {
     void checkoutShouldNotInvokePaymentServiceWhenOrderedItemsIsEmpty() {
         BDDMockito.given(defaultDiscountService.apply(BDDMockito.any())).willReturn(Optional.empty());
 
-        checkoutService.checkout(basket);
+        checkoutService.checkout(basket, "default");
 
         BDDMockito.verify(defaultDiscountService, BDDMockito.times(1)).apply(BDDMockito.any());
         BDDMockito.verify(paymentService, BDDMockito.times(0)).doPayment(discountedOrder);

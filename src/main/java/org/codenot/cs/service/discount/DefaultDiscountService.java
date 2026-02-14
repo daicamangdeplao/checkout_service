@@ -12,12 +12,16 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @Slf4j
-public class DefaultDiscountService {
+public class DefaultDiscountService implements DiscountService {
 
     private final List<DiscountConfiguration> discountConfigurations = List.of(
             new DiscountConfiguration(2, 10.0),
             new DiscountConfiguration(3, 12.0)
     );
+
+    public Boolean supports(String discountLogic) {
+        return discountLogic.equals("default");
+    }
 
     public Optional<OrderedItem> apply(OrderedItem item) {
         DiscountConfiguration discountConfiguration = discountConfigurations.get(ThreadLocalRandom.current().nextInt(discountConfigurations.size()));

@@ -36,13 +36,9 @@ public class Main implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        Order order = new Order(List.of(
-                new OrderedItem("apple", new BigDecimal("1.1"), 2)
-        ));
-
+    public void run(String... args) {
         Basket basket = createBasket();
-        checkoutService.checkout(basket);
+        checkoutService.checkout(basket, "default");
     }
 
     private Basket createBasket() {

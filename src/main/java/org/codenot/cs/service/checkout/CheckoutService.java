@@ -5,8 +5,8 @@ import org.codenot.cs.entity.Basket;
 import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
+import org.codenot.cs.service.discount.DiscountService;
 import org.codenot.cs.service.payment.PaymentService;
-import org.codenot.cs.service.discount.DefaultDiscountService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,15 +19,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class CheckoutService {
 
-    private final DefaultDiscountService defaultDiscountService;
     private final PaymentService paymentService;
+    private final List<DiscountService> discountServices;
 
-    public CheckoutService(DefaultDiscountService defaultDiscountService, PaymentService paymentService) {
-        this.defaultDiscountService = defaultDiscountService;
+    public CheckoutService(PaymentService paymentService, List<DiscountService> discountServices) {
+        this.discountServices = discountServices;
         this.paymentService = paymentService;
     }
 
-    public void checkout(Basket basket) {
+    public void checkout(Basket basket, String discountLogic) {
         log.info("Checkout basket");
         Optional<Order> originalOrder = createOrder(basket);
 
@@ -36,14 +36,23 @@ public class CheckoutService {
             return;
         }
 
-        Order discountOrder = applyDiscount(originalOrder.get());
+        Order discountOrder = applyDiscount(originalOrder.get(), discountLogic);
         paymentService.doPayment(discountOrder);
         log.info("Finish checkout basket");
     }
 
-    private Order applyDiscount(Order originalOrder) {
+    private Order applyDiscount(Order originalOrder, String discountLogic) {
+        Optional<DiscountService> first = discountServices.stream()
+                .filter(service -> service.supports(discountLogic))
+                .findFirst();
+
+        if (first.isEmpty()) {
+            return originalOrder;
+        }
+
+        DiscountService discountService = first.get();
         List<OrderedItem> discountedOrderedItems = originalOrder.orderedItems().stream()
-                .map(defaultDiscountService::apply)
+                .map(discountService::apply)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .toList();
