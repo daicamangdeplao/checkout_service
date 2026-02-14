@@ -2,6 +2,7 @@ package org.codenot.cs.service.discount;
 
 import lombok.extern.slf4j.Slf4j;
 import org.codenot.cs.entity.OrderedItem;
+import org.codenot.cs.service.discount.domain.DiscountStrategy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,8 +20,8 @@ public class DefaultDiscountService implements DiscountService {
             new DiscountConfiguration(3, 12.0)
     );
 
-    public Boolean supports(String discountLogic) {
-        return discountLogic.equals("default");
+    public Boolean supports(DiscountStrategy discountStrategy) {
+        return discountStrategy.equals(DiscountStrategy.DEFAULT);
     }
 
     public Optional<OrderedItem> apply(OrderedItem item) {

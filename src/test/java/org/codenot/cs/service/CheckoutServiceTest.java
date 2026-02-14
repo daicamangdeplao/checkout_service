@@ -6,6 +6,7 @@ import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
 import org.codenot.cs.service.checkout.CheckoutService;
 import org.codenot.cs.service.discount.DefaultDiscountService;
+import org.codenot.cs.service.discount.domain.DiscountStrategy;
 import org.codenot.cs.service.payment.PaymentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,7 +59,7 @@ class CheckoutServiceTest {
     void checkoutShouldProcessCorrectOrder() {
         BDDMockito.given(defaultDiscountService.apply(BDDMockito.any())).willReturn(Optional.of(discountedOrderedItem));
 
-        checkoutService.checkout(basket, "default");
+        checkoutService.checkout(basket, DiscountStrategy.DEFAULT);
 
         BDDMockito.verify(paymentService).doPayment(discountedOrder);
     }
@@ -67,7 +68,7 @@ class CheckoutServiceTest {
     void checkoutShouldNotInvokePaymentServiceWhenOrderedItemsIsEmpty() {
         BDDMockito.given(defaultDiscountService.apply(BDDMockito.any())).willReturn(Optional.empty());
 
-        checkoutService.checkout(basket, "default");
+        checkoutService.checkout(basket, DiscountStrategy.DEFAULT);
 
         BDDMockito.verify(defaultDiscountService, BDDMockito.times(1)).apply(BDDMockito.any());
         BDDMockito.verify(paymentService, BDDMockito.times(0)).doPayment(discountedOrder);

@@ -6,6 +6,7 @@ import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
 import org.codenot.cs.service.discount.DiscountService;
+import org.codenot.cs.service.discount.domain.DiscountStrategy;
 import org.codenot.cs.service.payment.PaymentService;
 import org.springframework.stereotype.Service;
 
@@ -27,7 +28,7 @@ public class CheckoutService {
         this.paymentService = paymentService;
     }
 
-    public void checkout(Basket basket, String discountLogic) {
+    public void checkout(Basket basket, DiscountStrategy discountStrategy) {
         log.info("Checkout basket");
         Optional<Order> originalOrder = createOrder(basket);
 
@@ -36,14 +37,14 @@ public class CheckoutService {
             return;
         }
 
-        Order discountOrder = applyDiscount(originalOrder.get(), discountLogic);
+        Order discountOrder = applyDiscount(originalOrder.get(), discountStrategy);
         paymentService.doPayment(discountOrder);
         log.info("Finish checkout basket");
     }
 
-    private Order applyDiscount(Order originalOrder, String discountLogic) {
+    private Order applyDiscount(Order originalOrder, DiscountStrategy discountStrategy) {
         Optional<DiscountService> first = discountServices.stream()
-                .filter(service -> service.supports(discountLogic))
+                .filter(service -> service.supports(discountStrategy))
                 .findFirst();
 
         if (first.isEmpty()) {

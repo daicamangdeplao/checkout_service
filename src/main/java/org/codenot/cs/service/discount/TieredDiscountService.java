@@ -5,6 +5,7 @@ import org.codenot.cs.entity.OrderedItem;
 import org.codenot.cs.repository.TieredDiscountConfigRepository;
 import org.codenot.cs.entity.PriceTier;
 import org.codenot.cs.entity.TieredDiscountConfig;
+import org.codenot.cs.service.discount.domain.DiscountStrategy;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -22,8 +23,8 @@ public class TieredDiscountService implements DiscountService {
         this.tieredDiscountConfigRepository = new TieredDiscountConfigRepository();
     }
 
-    public Boolean supports(String discountLogic) {
-        return discountLogic.equals("tiered");
+    public Boolean supports(DiscountStrategy discountStrategy) {
+        return discountStrategy.equals(DiscountStrategy.TIERED);
     }
 
     @Override

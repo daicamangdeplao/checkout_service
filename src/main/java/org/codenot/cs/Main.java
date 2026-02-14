@@ -5,6 +5,7 @@ import org.codenot.cs.entity.Item;
 import org.codenot.cs.entity.Order;
 import org.codenot.cs.entity.OrderedItem;
 import org.codenot.cs.service.checkout.CheckoutService;
+import org.codenot.cs.service.discount.domain.DiscountStrategy;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -38,7 +39,7 @@ public class Main implements CommandLineRunner {
     @Override
     public void run(String... args) {
         Basket basket = createBasket();
-        checkoutService.checkout(basket, "default");
+        checkoutService.checkout(basket, DiscountStrategy.DEFAULT);
     }
 
     private Basket createBasket() {
